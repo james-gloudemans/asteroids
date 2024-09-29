@@ -1,3 +1,5 @@
+from collections import Counter
+
 import pygame
 
 from circleshape import CircleShape
@@ -10,6 +12,7 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.timer = 0
+        self.powerups = Counter(POWERUP_KINDS)
         
     def triangle(self) -> list[pygame.Vector2]:
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -31,8 +34,8 @@ class Player(CircleShape):
         
     def shoot(self) -> None:
         shot = Shot(self.position.x, self.position.y)
-        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
-        self.timer = PLAYER_SHOOT_COOLDOWN
+        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED_BASE * (1+self.powerups["shot_speed"]/5)
+        self.timer = PLAYER_SHOOT_COOLDOWN_BASE / self.powerups["shot_rate"]
         
     def update(self, dt: int) -> None:
         self.timer -= dt
@@ -48,4 +51,6 @@ class Player(CircleShape):
             self.move(-dt)
         if keys[pygame.K_SPACE] and self.timer <= 0:
             self.shoot()
+        if keys[pygame.K_ESCAPE]:
+            exit()
         

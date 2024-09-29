@@ -2,11 +2,10 @@ import random
 
 import pygame
 
-from asteroid import Asteroid
+from powerup import Powerup
 from constants import *
 
-
-class AsteroidField(pygame.sprite.Sprite):
+class PowerupField(pygame.sprite.Sprite):
     edges = [
         [
             pygame.Vector2(1, 0),
@@ -29,25 +28,24 @@ class AsteroidField(pygame.sprite.Sprite):
             ),
         ],
     ]
-
+    
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.spawn_timer = 0.0
-
-    def spawn(self, radius: int, position: pygame.Vector2, velocity: pygame.Vector2):
-        asteroid = Asteroid(position.x, position.y, radius)
-        asteroid.velocity = velocity
-
+        
+    def spawn(self, position: pygame.Vector2, velocity: pygame.Vector2, kind: int):
+        powerup = Powerup(position.x, position.y, kind)
+        powerup.velocity = velocity
+        
     def update(self, dt: int) -> None:
         self.spawn_timer += dt
-        if self.spawn_timer > ASTEROID_SPAWN_RATE:
+        if self.spawn_timer > POWERUP_SPAWN_RATE:
             self.spawn_timer = 0
-
-            # spawn a new asteroid at a random edge
+            # spawn a new powerup at a random edge
             edge = random.choice(self.edges)
             speed = random.randint(40, 100)
             velocity: pygame.Vector2 = edge[0] * speed
             velocity = velocity.rotate(random.randint(-30, 30))
             position: pygame.Vector2 = edge[1](random.uniform(0, 1))
-            kind = random.randint(1, ASTEROID_KINDS)
-            self.spawn(ASTEROID_MIN_RADIUS * kind, position, velocity)
+            kind = random.choice(POWERUP_KINDS)
+            self.spawn(position, velocity, kind)
